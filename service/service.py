@@ -17,14 +17,12 @@ from langchain.chains import RetrievalQAWithSourcesChain
 from langchain.docstore.document import Document
 from langchain.chains.question_answering import load_qa_chain
 from langchain.chains.qa_with_sources import load_qa_with_sources_chain
-from dotenv import dotenv_values, load_dotenv
 
 
 
 
 from IPython.display import Markdown, HTML, display  
 
-from dotenv import load_dotenv
 
 
 def printmd(string):
@@ -35,8 +33,8 @@ BASE_CONTAINER_URL = "https://carpediemstoragebucket.blob.core.windows.net" + BL
 
 MODEL = "gpt-35-turbo-16k" # options: gpt-35-turbo, gpt-35-turbo-16k, gpt-4, gpt-4-32k
 
-def load_envs():
-    load_dotenv("env2.env")
+# def load_envs():
+#     load_dotenv("env2.env")
     
     # env_name = ".env2.env" # change to use your own .env file
 

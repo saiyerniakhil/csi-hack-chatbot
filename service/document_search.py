@@ -2,15 +2,15 @@ from openai import AzureOpenAI
 import os
 
 # openai.api_type = "azure"
-# openai.api_key = os.environ["AZURE_OPENAI_API_KEY"]
-# openai.api_base = os.environ["AZURE_OPENAI_ENDPOINT"]
+# openai.api_key = os.getenv("AZURE_OPENAI_API_KEY")
+# openai.api_base = os.getenv("AZURE_OPENAI_ENDPOINT")
 # openai.api_version = "2023-05-15"
 client = AzureOpenAI(
     # https://learn.microsoft.com/en-us/azure/ai-services/openai/reference#rest-api-versioning
     api_version="2023-07-01-preview",
-    api_key=os.environ["AZURE_OPENAI_API_KEY"],
+    api_key=os.getenv("AZURE_OPENAI_API_KEY"),
     # https://learn.microsoft.com/en-us/azure/cognitive-services/openai/how-to/create-resource?pivots=web-portal#create-a-resource
-    azure_endpoint=os.environ["AZURE_OPENAI_ENDPOINT"],
+    azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
 )
 
 def getmebedding(text):

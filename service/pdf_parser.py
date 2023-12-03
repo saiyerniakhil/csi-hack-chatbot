@@ -36,8 +36,8 @@ def parse_pdf(file, form_recognizer=False, formrecognizer_endpoint=None, formrec
             offset += len(page_text)
     else:
         if verbose: print(f"Extracting text using Azure Document Intelligence")
-        credential = AzureKeyCredential(os.environ["FORM_RECOGNIZER_KEY"])
-        form_recognizer_client = DocumentAnalysisClient(endpoint=os.environ["FORM_RECOGNIZER_ENDPOINT"], credential=credential)
+        credential = AzureKeyCredential(os.getenv("FORM_RECOGNIZER_KEY"))
+        form_recognizer_client = DocumentAnalysisClient(endpoint=os.getenv("FORM_RECOGNIZER_ENDPOINT"), credential=credential)
         
         if not from_url:
             with open(file, "rb") as filename:
@@ -111,9 +111,9 @@ def get_client():
     client = AzureOpenAI(
         # https://learn.microsoft.com/en-us/azure/ai-services/openai/reference#rest-api-versioning
         api_version="2023-07-01-preview",
-        api_key=os.environ["AZURE_OPENAI_API_KEY"],
+        api_key=os.getenv("AZURE_OPENAI_API_KEY"),
         # https://learn.microsoft.com/en-us/azure/cognitive-services/openai/how-to/create-resource?pivots=web-portal#create-a-resource
-        azure_endpoint=os.environ["AZURE_OPENAI_ENDPOINT"],
+        azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
     )
     return client
 
@@ -132,8 +132,8 @@ def process_pdf():
     filepdfs= []
 
     # Setup the Payloads header
-    headers = {'Content-Type': 'application/json','api-key': os.environ['AZURE_SEARCH_KEY']}
-    params = {'api-version': os.environ['AZURE_SEARCH_API_VERSION']}
+    headers = {'Content-Type': 'application/json','api-key': os.getenv('AZURE_SEARCH_KEY')}
+    params = {'api-version': os.getenv('AZURE_SEARCH_API_VERSION')}
     
     # iterate over files in
     # that directory
@@ -174,7 +174,6 @@ def process_pdf():
             try:
                 page_num = page[0] + 1
                 content = page[2]
-                #print('Content::', content)
                 head_tail = os.path.split(pdfname)
                 book_url = BASE_CONTAINER_URL + head_tail[1]
                 print("book_url", book_url)
@@ -193,14 +192,12 @@ def process_pdf():
                     ]
                 }
 
-                r = requests.post(os.environ['AZURE_SEARCH_ENDPOINT'] + "/indexes/" + get_vector_profile_indices() + "/docs/index",
+                r = requests.post(os.getenv('AZURE_SEARCH_ENDPOINT') + "/indexes/" + get_vector_profile_indices() + "/docs/index",
                                     data=json.dumps(upload_payload), headers=headers, params=params)
                 if r.status_code != 200:
                     print(r.status_code)
-                    print(r.text)
             except Exception as e:
                 print("Exception:",e)
-                print(content)
                 continue
 
     return pdf_pages_map

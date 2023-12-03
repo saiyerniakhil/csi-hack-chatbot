@@ -7,7 +7,7 @@ from langchain.docstore.document import Document
 from langchain.chains.qa_with_sources import load_qa_with_sources_chain
 from service.pdf_parser import getmebedding
 from service.azure_helpers import get_prompt_template, get_vector_profile_indices, model_tokens_limit, num_tokens_from_docs, num_tokens_from_string
-
+from IPython.display import HTML, display
 
 
 MODEL = "gpt-35-turbo-16k" # options: gpt-35-turbo, gpt-35-turbo-16k, gpt-4, gpt-4-32k
@@ -23,8 +23,8 @@ def get_search_results(query: str, indexes: list,
                        similarity_k: int = 3, 
                        query_vector: list = []):
     
-    headers = {'Content-Type': 'application/json','api-key': os.environ["AZURE_SEARCH_KEY"]}
-    params = {'api-version': os.environ['AZURE_SEARCH_API_VERSION']}
+    headers = {'Content-Type': 'application/json','api-key': os.getenv("AZURE_SEARCH_KEY")}
+    params = {'api-version': os.getenv('AZURE_SEARCH_API_VERSION')}
 
     agg_search_results = dict()
     
@@ -48,13 +48,10 @@ def get_search_results(query: str, indexes: list,
             #TODO: Fix this afterwards
             search_payload["select"] = str("id, title, chunks, language, name, location, vectorized")
         
-        print(search_payload)
-        print(json.dumps(search_payload))
-        resp = requests.post(os.environ['AZURE_SEARCH_ENDPOINT'] + "/indexes/" + index + "/docs/search",
+        resp = requests.post(os.getenv('AZURE_SEARCH_ENDPOINT') + "/indexes/" + index + "/docs/search",
                          data=json.dumps(search_payload), headers=headers, params=params)
 
         search_results = resp.json()
-        print('search results: ', search_results)
         agg_search_results[index] = search_results
     
     content = dict()
@@ -106,11 +103,12 @@ def collate_processed_docs(ordered_results):
     top_docs = []
     for key,value in ordered_results.items():
         location = value["location"] if value["location"] is not None else ""
-        # top_docs.append(Document(page_content=value["chunk"], metadata={"source": location+os.environ['BLOB_SAS_TOKEN']}))
+        # top_docs.append(Document(page_content=value["chunk"], metadata={"source": location+os.getenv('BLOB_SAS_TOKEN')}))
         top_docs.append(Document(page_content=value["content"], metadata={"source": location}))
 
             
     print("Number of chunks:",len(top_docs))
+    return top_docs
 
 def get_answer(question):
     # Calculate number of tokens of our docs
@@ -155,4 +153,5 @@ def get_answer(question):
                                         combine_prompt=combined_prompt,
                                         return_intermediate_steps=True)
     response = chain({"input_documents": top_docs, "question": question, "language": "English"})
-    return response
+    
+    return {"answer": response['output_text']}
