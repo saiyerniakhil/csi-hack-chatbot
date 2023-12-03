@@ -3,7 +3,6 @@ from flask_cors import CORS, cross_origin
 import os
 import json
 from dotenv import load_dotenv
-from nbconvert import HTMLExporter
 
 from service import service, pdf_parser, search_helpers, azure_helpers
 
